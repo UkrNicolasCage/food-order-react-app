@@ -10,6 +10,28 @@
   margin: 0;
   padding: 0;
 }
+.loading-alert {
+  text-align: center;
+  font-size: 2rem;
+}
+.reload-btn {
+  cursor: pointer;
+  font: inherit;
+  border: none;
+  background-color: #4d1601;
+  color: white;
+  padding: 0.75rem 3rem;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-radius: 25px;
+  font-weight: bold;
+  margin: 0 auto;
+}
+.reload-btn:hover,
+.reload-btn:active {
+  background-color: #2c0d00;
+}
 
 @keyframes meals-appear {
   from {

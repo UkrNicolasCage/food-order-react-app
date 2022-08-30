@@ -1,49 +1,75 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import Card from "../UI/Card";
-import MealItem from "./MealItem/MealItem.js"
+import MealItem from "./MealItem/MealItem.js";
 import classes from "./AvailableMeals.module.css";
-const DUMMY_MEALS = [
-  {
-    id: "m1",
-    name: "Sushi",
-    description: "Finest fish and veggies",
-    price: 22.99,
-  },
-  {
-    id: "m2",
-    name: "Schnitzel",
-    description: "A german specialty!",
-    price: 16.5,
-  },
-  {
-    id: "m3",
-    name: "Barbecue Burger",
-    description: "American, raw, meaty",
-    price: 12.99,
-  },
-  {
-    id: "m4",
-    name: "Green Bowl",
-    description: "Healthy...and green...",
-    price: 18.99,
-  },
-];
 
 const AvailableMeals = (props) => {
-  const mealsList = DUMMY_MEALS.map((meal) => {
-    return <MealItem 
-    id={meal.id}
-    key={meal.id}
-    name ={meal.name} 
-    description={meal.description}
-    price={meal.price}/>;
-  });
+  const [meals, setMeals] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState();
 
+  useEffect(() => {
+    const fetchMeals = async () => {
+      try {
+        const response = await fetch(
+          "https://food-order-app-2fb63-default-rtdb.europe-west1.firebasedatabase.app/meals.json"
+        );
+        if (!response.ok) {
+          throw new Error("Error :(");
+        }
+        setIsError(false);
+        const data = await response.json();
+        const loadedMeals = [];
+        for (const key in data) {
+          loadedMeals.push({
+            id: key,
+            name: data[key].name,
+            description: data[key].description,
+            price: data[key].price,
+          });
+        }
+        setMeals(loadedMeals);
+      } catch (e) {
+        setIsLoading(false);
+        setIsError(true);
+      }
+    };
+    fetchMeals();
+    setIsLoading(false);
+  }, [isError]);
+  
+  const mealsList = meals.map((meal) => {
+    return (
+      <MealItem
+        id={meal.id}
+        key={meal.id}
+        name={meal.name}
+        description={meal.description}
+        price={meal.price}
+      />
+    );
+  });
+  const reloadButtonHandler = () => {
+    setIsError(false);
+  }
+  let content;
+  if(isLoading){
+    content = <p className={classes["loading-alert"]}>Loading...</p>;
+  }
+  if(isError){
+    content = <button
+            onClick={reloadButtonHandler}
+            className={classes["reload-btn"]}
+          >Reload</button>
+  }
+  if(!isLoading && !isError){
+    content = <ul>{mealsList}</ul>
+  }
   return (
     <section className={classes.meals}>
       <Card>
-        <ul>{mealsList}</ul>
+        {content}
       </Card>
     </section>
   );
